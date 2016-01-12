@@ -17,29 +17,30 @@ Open Sesame System - Open/Close door lock with Smartphone
 
 	cd /home/pi
 	git clone https://github.com/charifmahmoudi/OpenSesameSystem
-	sudo nano /etc/local.rc
+	sudo nano /etc/rc.local
 	
 	```
 	
 	#!/bin/sh -e
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
+\#
+\# rc.local
+\#
+\# This script is executed at the end of each multiuser runlevel.
+\# Make sure that the script will "exit 0" on success or any other
+\# value on error.
+\#
+\# In order to enable or disable this script just change the execution
+\# bits.
+\#
+\# By default this script does nothing.
 
-# Print the IP address
+\# Print the IP address
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
-# Runs Open Sesame System (OSS)
+
+\# Runs Open Sesame System (OSS)
 sudo /home/pi/pi-blaster/pi-blaster > /var/log/OpenSesameSystem/oss.log  &
 sudo nodejs /home/pi/OpenSesameSystem/oss.js >> /var/log/OpenSesameSystem/oss.log  &
 printf "Open Sesame System (OSS) is listening on port 1337\n"
