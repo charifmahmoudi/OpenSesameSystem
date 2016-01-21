@@ -7,7 +7,28 @@ var server = require('http').createServer(app);
 var fs = require('fs');
 var WebSocketServer = require('websocket').server;
 var piblaster = require("pi-blaster.js");
+var mqtt    = require('mqtt');
 
+
+var wsbroker = '<YOUR-DEVICE-ID>.iot.us-east-1.amazonaws.com';	// The Amazon MQTT endpoint uou can use "test.mosquitto.org";  //mqtt websocket enabled broker
+    var wsport = 8883 // Amazon port
+    var wsQueueName = "$aws/things/XXX" // Amazon queue name
+	
+var client  = mqtt.connect(wsbroker,wsport);
+  
+client.on('connect', function () {
+  client.subscribe(wsQueueName);
+  console.log((new Date()) + " Open Sesame System server is listening over MQTT at Amazon IoT ... ");
+});
+ 
+client.on('message', function (topic, message) {
+  console.log('Data: ' +  message.toString());
+   
+        var data = message.toString();
+		//Write the data received to the servo
+            piblaster.setPwm(17, Number(data)/100);
+  
+});
 
 //Listening to request from the browser
 //and send html file response back

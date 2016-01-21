@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://git.eclipse.org/c/paho/org.eclipse.paho.mqtt.javascript.git/plain/src/mqttws31.js"></script>
 </head>
 <body>
 
@@ -28,20 +29,72 @@
     <div class="panel-body" id="content">Waiting for command</div>
   </div>
 </div>
+
+
     <script type="text/javascript">
+
+    var wsbroker = '<YOUR-DEVICE-ID>.iot.us-east-1.amazonaws.com';	// The Amazon MQTT endpoint uou can use "test.mosquitto.org";  //mqtt websocket enabled broker
+    var wsport = 8883 // Amazon port
+    var wsQueueName = "$aws/things/XXX" // Amazon queue name
+	var isAmazon = false;
+    var client = new Paho.MQTT.Client(wsbroker, wsport);
+		
+    client.onConnectionLost = function (responseObject) {
+	isAmazon = false;
+	$('#status').text("Sorry, connection lost: " + responseObject.errorMessage );  
+    };
+    client.onMessageArrived = function (message) {
+		$('#status').text("Message received : " + message.destinationName, ' -- ', message.payloadString );
+    };
+    var options = {
+      timeout: 3,
+      onSuccess: function () {
+		 $('#status').text('You are connected to Open Sesame System Server over MQTT on Amazon IoT.');
+ 
+        client.subscribe(wsQueueName, {qos: 1});
+        
+  
+      },
+      onFailure: function (message) {
+	  isAmazon = false;
+	  $('#status').text("Sorry, connection failed: " + responseObject.errorMessage );  
+      }
+    };
+  function initAmazon() {
+      client.connect(options);
+  }
 
 var connection;
 
 $(document).ready(function() {
     $("#btnOpen").click(function(){
         $('#content').text('Opening the door.');
-		connection.send('22');
+		if(isAmazon){
+			message = new Paho.MQTT.Message("22");
+			message.destinationName = wsQueueName;
+			client.send(message);
+		
+		}
+		else {
+			connection.send('22');
+		}
+		
+		
     }); 
 });
 $(document).ready(function() {
     $("#btnClose").click(function(){
         $('#content').text('Closing the door.');
-		connection.send('2');
+		if(connection){
+			message = new Paho.MQTT.Message("2");
+			message.destinationName = wsQueueName;
+			client.send(message);
+		}
+		else {
+			connection.send('2');
+		
+		}
+		
     }); 
 });
 $(function () {
@@ -52,7 +105,8 @@ connection.onopen = function () {
     $('#status').text('You are connected to Open Sesame System Server.');
 	};
 connection.onerror = function (error) {
-	$('#status').text('Sorry, but there\'s some problem with your connection or the server is down.' );  
+	$('#status').text('Sorry, but there\'s some problem with your connection or the server is down. Switching to Amazon IoT' );  
+	initAmazon();
 };
   });
  </script>
