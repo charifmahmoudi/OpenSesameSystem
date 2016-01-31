@@ -10,6 +10,7 @@ var piblaster = require("pi-blaster.js");
 var mqtt    = require('mqtt');
 
 
+
 var wsbroker = '<YOUR-DEVICE-ID>.iot.us-east-1.amazonaws.com';	// The Amazon MQTT endpoint uou can use "test.mosquitto.org";  //mqtt websocket enabled broker
     var wsport = 8883 // Amazon port
     var wsQueueName = "$aws/things/XXX" // Amazon queue name
